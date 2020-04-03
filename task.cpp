@@ -44,6 +44,12 @@ void sig_real(cmplx *in, float *out, size_t sz)
 		out[k] = std::real(in[k]);
 }
 
+void sig_imag(cmplx *in, float *out, size_t sz)
+{
+	for (size_t k = 0; k < sz; ++k)
+		out[k] = std::imag(in[k]);
+}
+
 void sig_abs(cmplx *in, float *out, size_t sz)
 {
 	for (size_t k = 0; k < sz; ++k)
@@ -95,7 +101,7 @@ void out_to_file(char const *path, float *v,
 
 int main()
 {
-	size_t mult = 2;		/* mult = 8 was used */
+	size_t mult = 8;		/* mult = 8 was used */
 	size_t sz = 1024 * mult;	/* Number of points in signal buf */
 	float len = 64;		 	/* Single triangle impulse lenght */
 
@@ -121,6 +127,11 @@ int main()
 	sig_real(s_buf2, s_result, sz);			// Apply real
 	sig_sqrt(s_result, sz);				// Apply sqrt
 	out_to_file("./out/sqrt_dft_dacf.dat", s_result, 0, 128 * mult);
+
+	sig_real(s_buf1, s_result, sz);			// Get Re(dacf)
+	out_to_file("./out/real_dacf.dat", s_result, 0, 128 * mult);
+	sig_imag(s_buf1, s_result, sz);			// Get Im(dacf)
+	out_to_file("./out/imag_dacf.dat", s_result, 0, 128 * mult);
 
 	return 0;
 }
