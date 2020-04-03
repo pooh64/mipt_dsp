@@ -1,0 +1,12 @@
+*
+!*/
+
+!*.c
+!*.h
+!*.cpp
+!*.sh
+!*.md
+!*.gitignore
+
+!*.dat
+!*.png
