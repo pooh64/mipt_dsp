@@ -79,12 +79,12 @@ void triangle_sequence(cmplx *out, size_t sz, size_t len)
 }
 
 void out_to_file(char const *path, float *v,
-	size_t from, size_t to)
+	size_t from, size_t to, float x_scale)
 {
 	std::ofstream file;
 	file.open(path);
 	for (size_t i = from; i < to; ++i)
-		file << i << " " << v[i] << "\n";
+		file << x_scale * i << " " << v[i] << "\n";
 	file.close();
 }
 
@@ -93,6 +93,8 @@ int main()
 	size_t mult = 2;		/* Adjust number of points */
 	size_t sz = 1024 * mult;	/* Number of points in signal buf */
 	int len = 64 * mult;		/* Single triangle impulse lenght */
+
+	float delta_t = 1;
 
 	auto s_signal = new cmplx[sz];
 	auto s_buf1   = new cmplx[sz];
@@ -103,24 +105,25 @@ int main()
 	triangle_sequence(s_signal, sz, len);		// s = triangle seq.
 	dft(s_signal, s_buf1, sz);			// Apply dft
 	sig_abs(s_buf1, s_result, sz);			// Aplly abs
-	out_to_file("./out/abs_dft.dat", s_result, 0, 512 * mult);
+	out_to_file("./out/abs_dft.dat", s_result, 0, 512 * mult, 1/delta_t);
 
 	/* Check dft_inv(dft(s)) ?= s */
 	dft_inv(s_buf1, s_buf2, sz);			// dft_inv(dft))
 	sig_abs(s_buf2, s_result, sz);			// Apply abs
-	out_to_file("./out/dftinv_dft.dat", s_result, 0, 256 * mult);
+	out_to_file("./out/dftinv_dft.dat", s_result, 0, 512 * mult, delta_t);
 
 	/* Main task */
 	dacf(s_signal, s_buf1, sz);			// Apply dacf
 	dft(s_buf1, s_buf2, sz);			// Apply dft
 	sig_sqrt(s_buf2, sz);				// Apply sqrt
 	sig_real(s_buf2, s_result, sz);			// Apply real
-	out_to_file("./out/sqrt_dft_dacf.dat", s_result, 0, 512 * mult);
+	out_to_file("./out/sqrt_dft_dacf.dat", s_result, 0, 512 * mult,
+		1/delta_t);
 
 	sig_real(s_buf1, s_result, sz);			// Get Re(dacf)
-	out_to_file("./out/real_dacf.dat", s_result, 0, 128 * mult);
+	out_to_file("./out/real_dacf.dat", s_result, 0, 512 * mult, delta_t);
 	sig_imag(s_buf1, s_result, sz);			// Get Im(dacf)
-	out_to_file("./out/imag_dacf.dat", s_result, 0, 128 * mult);
+	out_to_file("./out/imag_dacf.dat", s_result, 0, 512 * mult, delta_t);
 
 	return 0;
 }
